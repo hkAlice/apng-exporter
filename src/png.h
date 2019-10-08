@@ -1,7 +1,7 @@
 #ifndef _PNG
 #define _PNG
 
-static char PNG_SIG[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+static uint8_t PNG_SIG[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
 
 struct _png_HEADER
 {

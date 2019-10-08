@@ -1,6 +1,8 @@
 #ifndef _PNG
 #define _PNG
 
+#include <memory>
+
 static uint8_t PNG_SIG[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
 
 struct _png_HEADER
@@ -25,15 +27,10 @@ struct _png_CHUNK_IHDR
     uint8_t interlace;
 };
 
-struct _png_CHUNK_IDAT
-{
-    
-};
-
 struct _png_CHUNK
 {
     _png_CHUNK_INFO info;
-    void* chunk;
+    std::vector< unsigned char > data;
     uint32_t crc;
 };
 
@@ -50,7 +47,24 @@ public:
     PNG( const PNG& png ) = delete;
     PNG& operator=( const PNG& png ) = delete;
 
+    void setIHDR( const _png_CHUNK_IHDR& ihdr )
+    {
+        m_ihdr = ihdr;
+    }
+
+    void addChunk( const _png_CHUNK& chunk )
+    {
+        m_chunks.push_back( chunk );
+    }
+
+private:
+
+    _png_CHUNK_IHDR m_ihdr;
+    std::vector< _png_CHUNK > m_chunks;
+
 
 };
+
+using PNGPtr = std::shared_ptr< PNG >;
 
 #endif

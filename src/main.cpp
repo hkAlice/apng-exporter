@@ -49,6 +49,7 @@ int main( int argc, char *argv[] )
         auto pBasePng = readPNG( fmt::sprintf( inputPath, idx ) );
 
         // todo: while pPng read
+        std::cout << std::to_string( pBasePng->getIHDRCRC32() ) << std::endl;
         idx++;
         
     }

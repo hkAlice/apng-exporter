@@ -4,7 +4,7 @@ project(apng-exporter VERSION 0.1 LANGUAGES CXX)
 if(MSVC OR MSYS OR MINGW)
     set(CMAKE_CXX_FLAGS "/std:c++17")
 else()
-    set(CMAKE_CXX_FLAGS "-std=c++17")
+    set(CMAKE_CXX_FLAGS "-fpermissive")
 endif()
 
 add_executable(apng-exporter src/main)

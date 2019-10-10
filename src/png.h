@@ -5,6 +5,13 @@
 
 static uint8_t PNG_SIG[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
 
+enum PNG_ITYPE
+{
+    IHDR = 1380206665,
+    IDAT = 1413563465,
+    IEND = 1145980233
+};
+
 struct _png_HEADER
 {
     char signature[8];
@@ -76,6 +83,11 @@ public:
     void addChunk( const _png_CHUNK& chunk )
     {
         m_chunks.push_back( chunk );
+    }
+
+    const std::vector< _png_CHUNK >& getChunks() const
+    {
+        return m_chunks;
     }
 
 

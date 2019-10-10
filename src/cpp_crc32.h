@@ -1,6 +1,8 @@
 #ifndef _CPP_CRC32
 #define _CPP_CRC32
 
+// From: https://rosettacode.org/wiki/CRC-32#C.2B.2B
+
 #include <algorithm>
 #include <array>
 #include <cstdint>

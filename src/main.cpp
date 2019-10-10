@@ -9,6 +9,7 @@
 #include "png.h"
 #include "png_read.h"
 #include "crc32.h"
+#include "cpp_crc32.h"
 
 int main( int argc, char *argv[] )
 {
@@ -70,17 +71,19 @@ int main( int argc, char *argv[] )
 
                     std::cout << "real crc32: " << std::to_string( chk.crc32 ) << std::endl;
 
-                    unsigned char crcBuf[ 4 + chk.data.size() ];
-                    memcpy( &crcBuf[0], &chk.info.type, 4 );
-                    memcpy( &crcBuf[4], &chk.data.data()[0], chk.data.size() );
+                    std::vector< unsigned char > crcBufVec;
+                    crcBufVec.push_back( chk.info.type.ctype[0] );
+                    crcBufVec.push_back( chk.info.type.ctype[1] );
+                    crcBufVec.push_back( chk.info.type.ctype[2] );
+                    crcBufVec.push_back( chk.info.type.ctype[3] );
+                    crcBufVec.insert( crcBufVec.end(), chk.data.begin(), chk.data.end() );
 
-                    // todo: this ain't it
-                    uint32_t genCRC32 = crc( &crcBuf, 4 + chk.data.size() );
+                    uint32_t crc32Val = crc( crcBufVec.begin(), crcBufVec.end() );
+                    swapByteOrder( crc32Val );
 
-                    if( genCRC32 != chk.crc32 )
+                    std::cout << "calc crc32: " << crc32Val << std::endl;
+                    if( crc32Val != chk.crc32 )
                         std::cout << "CRC32 mismatch!" << std::endl;
-
-                    std::cout << "apng crc32: " << genCRC32 << std::endl;
                 }
 
                 pPng = readPNG( fmt::sprintf( inputPath, idx ) );

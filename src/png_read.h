@@ -24,7 +24,7 @@ bool readNextChunk( std::ifstream& ifs, _png_CHUNK& pngChk )
 
     pngChk.info = pngChkInf;
 
-    std::vector< unsigned char > chkData( pngChkInf.len );
+    std::vector< char > chkData( pngChkInf.len );
     ifs.read( ( char* )&chkData.data()[0], pngChkInf.len );
 
     pngChk.data = chkData;

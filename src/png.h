@@ -43,7 +43,7 @@ struct _png_CHUNK_IHDR
 struct _png_CHUNK
 {
     _png_CHUNK_INFO info;
-    std::vector< unsigned char > data;
+    std::vector< char > data;
     uint32_t crc32;
 };
 

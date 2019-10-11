@@ -8,7 +8,6 @@
 
 #include "png.h"
 #include "png_read.h"
-#include "crc32.h"
 #include "cpp_crc32.h"
 
 int main( int argc, char *argv[] )
@@ -48,6 +47,7 @@ int main( int argc, char *argv[] )
         bool hasNext = true;
 
         auto pBasePng = readPNG( fmt::sprintf( inputPath, idx ) );
+        idx++;
 
         // todo: while pPng read
 
@@ -71,11 +71,8 @@ int main( int argc, char *argv[] )
 
                     std::cout << "real crc32: " << std::to_string( chk.crc32 ) << std::endl;
 
-                    std::vector< unsigned char > crcBufVec;
-                    crcBufVec.push_back( chk.info.type.ctype[0] );
-                    crcBufVec.push_back( chk.info.type.ctype[1] );
-                    crcBufVec.push_back( chk.info.type.ctype[2] );
-                    crcBufVec.push_back( chk.info.type.ctype[3] );
+                    std::vector< unsigned char > crcBufVec( sizeof( _png_CHUNK_TYPE ) ) ;
+                    std::memcpy( &crcBufVec.data()[0], &chk.info.type, sizeof( _png_CHUNK_TYPE ) );
                     crcBufVec.insert( crcBufVec.end(), chk.data.begin(), chk.data.end() );
 
                     uint32_t crc32Val = crc( crcBufVec.begin(), crcBufVec.end() );

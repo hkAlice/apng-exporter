@@ -2,6 +2,8 @@
 #define _PNG
 
 #include <memory>
+#include "byte_ops.h"
+#include "cpp_crc32.h"
 
 static uint8_t PNG_SIG[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
 
@@ -9,7 +11,10 @@ enum PNG_ITYPE
 {
     IHDR = 1380206665,
     IDAT = 1413563465,
-    IEND = 1145980233
+    IEND = 1145980233,
+    fdAT = 1413571686,
+    fcTL = 1280598886,
+    acTL = 1280598881
 };
 
 struct _png_HEADER
@@ -85,11 +90,47 @@ public:
         m_chunks.push_back( chunk );
     }
 
+    void insertChunk( const _png_CHUNK& chunk, int idx ) {
+        m_chunks.insert( m_chunks.begin() + idx, chunk );
+    }
+    
+    void removeChunkAt( int idx ) {
+        m_chunks.erase( m_chunks.begin() + idx );
+    }
+    
     const std::vector< _png_CHUNK >& getChunks() const
     {
         return m_chunks;
     }
 
+    static uint32_t calculateChunkCRC32( const _png_CHUNK& chk ) {
+        std::vector< unsigned char > crcBufVec( sizeof( _png_CHUNK_TYPE ) );
+        std::memcpy( &crcBufVec.data()[ 0 ], &chk.info.type, sizeof( _png_CHUNK_TYPE ) );
+        crcBufVec.insert( crcBufVec.end(), chk.data.begin(), chk.data.end() );
+
+        uint32_t crc32Val = crc( crcBufVec.begin(), crcBufVec.end() );
+        swapByteOrder( crc32Val );
+
+        return crc32Val;
+    }
+
+    std::vector< char > getBinaryData() {
+        std::vector< char > rawData;
+        std::copy( PNG_SIG, PNG_SIG + 8, std::back_inserter( rawData ) );
+
+        for( const auto& chk : m_chunks ) {
+            std::vector< unsigned char > bufVec( sizeof( _png_CHUNK_INFO ) );
+            std::memcpy( &bufVec.data()[ 0 ], &chk.info, sizeof( _png_CHUNK_INFO ) );
+            bufVec.insert( bufVec.end(), chk.data.begin(), chk.data.end() );
+
+            auto crcVal = calculateChunkCRC32( chk );
+            bufVec.insert( bufVec.end(), ( char* )&crcVal, ( char* )&crcVal + sizeof( crcVal ) );
+
+            rawData.insert( rawData.end(), bufVec.begin(), bufVec.end() );
+        }
+
+        return rawData;
+    }
 
 private:
 

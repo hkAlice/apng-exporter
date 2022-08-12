@@ -14,22 +14,35 @@ bool readNextChunk( std::ifstream& ifs, _png_CHUNK& pngChk )
 {
     _png_CHUNK_INFO pngChkInf;
 
-    ifs.read( ( char* )&pngChkInf.len, sizeof( pngChkInf.len ) );
+    std::vector< char > chkLen;
+    chkLen.resize( sizeof( pngChkInf.len ) );
+
+    ifs.read( ( char* )&chkLen[ 0 ], sizeof( pngChkInf.len ) );
+    memcpy( ( char* )&pngChkInf.len, ( char* )&chkLen[ 0 ], sizeof( pngChkInf.len ) );
     // TODO: I can't read
     if( ifs.eof() )
         return false;
 
-    ifs.read( ( char* )&pngChkInf.type, sizeof( pngChkInf.type ) );
-    swapByteOrder( pngChkInf.len );
+    auto chkLength = pngChkInf.len;
+    swapByteOrder( chkLength );
+
+    std::vector< char > chkType;
+    chkType.resize( sizeof( pngChkInf.type ) );
+
+    ifs.read( ( char* )&chkType[ 0 ], sizeof( pngChkInf.type ) );
+    memcpy( ( char* )&pngChkInf.type, ( char* )&chkType[ 0 ], sizeof( pngChkInf.type ) );
 
     pngChk.info = pngChkInf;
 
-    std::vector< char > chkData( pngChkInf.len );
-    ifs.read( ( char* )&chkData.data()[0], pngChkInf.len );
+    std::vector< char > chkData( chkLength );
+    ifs.read( ( char* )&chkData.data()[0], chkLength );
 
     pngChk.data = chkData;
 
-    ifs.read( ( char* )&pngChk.crc32, sizeof( pngChk.crc32 ) );
+    std::vector< char > chkCrc;
+    chkCrc.resize( sizeof( pngChkInf.len ) );
+    ifs.read( ( char* )&chkCrc[ 0 ], sizeof( pngChkInf.len ) );
+    memcpy( ( char* )&pngChk.crc32, ( char* )&chkCrc[ 0 ], sizeof( char ) * chkCrc.size() );
 
     std::cout << pngChk.info.type.ctype[0]
                               << pngChk.info.type.ctype[1]
